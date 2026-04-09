@@ -1,0 +1,350 @@
+{
+  "muscles": [
+    { "id": "pectoraux", "label": "Pectoraux" },
+    { "id": "dos", "label": "Dos" },
+    { "id": "epaules", "label": "Épaules" },
+    { "id": "biceps", "label": "Biceps" },
+    { "id": "triceps", "label": "Triceps" },
+    { "id": "jambes", "label": "Jambes" },
+    { "id": "abdos", "label": "Abdominaux" },
+    { "id": "cardio", "label": "Cardio" }
+  ],
+  "defaultExercises": [
+    {
+      "id": "e1",
+      "name": "Développé couché",
+      "muscle": "pectoraux",
+      "type": "Barre",
+      "level": "medium",
+      "custom": false
+    },
+    {
+      "id": "e2",
+      "name": "Développé incliné haltères",
+      "muscle": "pectoraux",
+      "type": "Haltères",
+      "level": "medium",
+      "custom": false
+    },
+    {
+      "id": "e3",
+      "name": "Écarté poulie",
+      "muscle": "pectoraux",
+      "type": "Câbles",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e4",
+      "name": "Dips",
+      "muscle": "pectoraux",
+      "type": "Poids de corps",
+      "level": "medium",
+      "custom": false
+    },
+    {
+      "id": "e5",
+      "name": "Pompes",
+      "muscle": "pectoraux",
+      "type": "Poids de corps",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e6",
+      "name": "Pec deck",
+      "muscle": "pectoraux",
+      "type": "Machine",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e7",
+      "name": "Tractions",
+      "muscle": "dos",
+      "type": "Poids de corps",
+      "level": "hard",
+      "custom": false
+    },
+    {
+      "id": "e8",
+      "name": "Rowing barre",
+      "muscle": "dos",
+      "type": "Barre",
+      "level": "medium",
+      "custom": false
+    },
+    {
+      "id": "e9",
+      "name": "Tirage vertical",
+      "muscle": "dos",
+      "type": "Machine",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e10",
+      "name": "Rowing haltère unilatéral",
+      "muscle": "dos",
+      "type": "Haltères",
+      "level": "medium",
+      "custom": false
+    },
+    {
+      "id": "e11",
+      "name": "Soulevé de terre",
+      "muscle": "dos",
+      "type": "Barre",
+      "level": "hard",
+      "custom": false
+    },
+    {
+      "id": "e12",
+      "name": "Tirage horizontal câbles",
+      "muscle": "dos",
+      "type": "Câbles",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e13",
+      "name": "Développé militaire",
+      "muscle": "epaules",
+      "type": "Barre",
+      "level": "medium",
+      "custom": false
+    },
+    {
+      "id": "e14",
+      "name": "Élévations latérales",
+      "muscle": "epaules",
+      "type": "Haltères",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e15",
+      "name": "Face pull",
+      "muscle": "epaules",
+      "type": "Câbles",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e16",
+      "name": "Élévations frontales",
+      "muscle": "epaules",
+      "type": "Haltères",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e17",
+      "name": "Arnold press",
+      "muscle": "epaules",
+      "type": "Haltères",
+      "level": "medium",
+      "custom": false
+    },
+    {
+      "id": "e18",
+      "name": "Curl barre",
+      "muscle": "biceps",
+      "type": "Barre",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e19",
+      "name": "Curl haltères alterné",
+      "muscle": "biceps",
+      "type": "Haltères",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e20",
+      "name": "Curl marteau",
+      "muscle": "biceps",
+      "type": "Haltères",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e21",
+      "name": "Curl poulie basse",
+      "muscle": "biceps",
+      "type": "Câbles",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e22",
+      "name": "Curl concentré",
+      "muscle": "biceps",
+      "type": "Haltères",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e23",
+      "name": "Dips triceps",
+      "muscle": "triceps",
+      "type": "Poids de corps",
+      "level": "medium",
+      "custom": false
+    },
+    {
+      "id": "e24",
+      "name": "Extension barre au front",
+      "muscle": "triceps",
+      "type": "Barre",
+      "level": "medium",
+      "custom": false
+    },
+    {
+      "id": "e25",
+      "name": "Pushdown poulie",
+      "muscle": "triceps",
+      "type": "Câbles",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e26",
+      "name": "Extension haltère unilatérale",
+      "muscle": "triceps",
+      "type": "Haltères",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e27",
+      "name": "Squat",
+      "muscle": "jambes",
+      "type": "Barre",
+      "level": "hard",
+      "custom": false
+    },
+    {
+      "id": "e28",
+      "name": "Presse à cuisses",
+      "muscle": "jambes",
+      "type": "Machine",
+      "level": "medium",
+      "custom": false
+    },
+    {
+      "id": "e29",
+      "name": "Fentes haltères",
+      "muscle": "jambes",
+      "type": "Haltères",
+      "level": "medium",
+      "custom": false
+    },
+    {
+      "id": "e30",
+      "name": "Leg curl",
+      "muscle": "jambes",
+      "type": "Machine",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e31",
+      "name": "Leg extension",
+      "muscle": "jambes",
+      "type": "Machine",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e32",
+      "name": "Mollets machine",
+      "muscle": "jambes",
+      "type": "Machine",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e33",
+      "name": "Romanian deadlift",
+      "muscle": "jambes",
+      "type": "Barre",
+      "level": "hard",
+      "custom": false
+    },
+    {
+      "id": "e34",
+      "name": "Crunchs",
+      "muscle": "abdos",
+      "type": "Poids de corps",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e35",
+      "name": "Planche",
+      "muscle": "abdos",
+      "type": "Poids de corps",
+      "level": "medium",
+      "custom": false
+    },
+    {
+      "id": "e36",
+      "name": "Relevé de jambes suspendu",
+      "muscle": "abdos",
+      "type": "Poids de corps",
+      "level": "hard",
+      "custom": false
+    },
+    {
+      "id": "e37",
+      "name": "Crunch poulie haute",
+      "muscle": "abdos",
+      "type": "Câbles",
+      "level": "medium",
+      "custom": false
+    },
+    {
+      "id": "e38",
+      "name": "Ab wheel",
+      "muscle": "abdos",
+      "type": "Poids de corps",
+      "level": "hard",
+      "custom": false
+    },
+    {
+      "id": "e39",
+      "name": "Course tapis",
+      "muscle": "cardio",
+      "type": "Cardio",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e40",
+      "name": "Vélo elliptique",
+      "muscle": "cardio",
+      "type": "Cardio",
+      "level": "easy",
+      "custom": false
+    },
+    {
+      "id": "e41",
+      "name": "Rameur",
+      "muscle": "cardio",
+      "type": "Cardio",
+      "level": "medium",
+      "custom": false
+    },
+    {
+      "id": "e42",
+      "name": "Corde à sauter",
+      "muscle": "cardio",
+      "type": "Cardio",
+      "level": "medium",
+      "custom": false
+    }
+  ]
+}
