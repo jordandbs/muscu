@@ -73,6 +73,32 @@
                 placeholder="Minimum 6 caractères"
               />
             </div>
+            <div class="reg-divider">Informations physiques</div>
+            <div class="field">
+              <label>Genre</label>
+              <div class="gender-row">
+                <button type="button" class="gender-btn" id="reg-gender-homme" onclick="selectRegGender('homme')">
+                  <span class="g-icon">&#9794;</span><span class="g-label">Homme</span>
+                </button>
+                <button type="button" class="gender-btn" id="reg-gender-femme" onclick="selectRegGender('femme')">
+                  <span class="g-icon">&#9792;</span><span class="g-label">Femme</span>
+                </button>
+              </div>
+            </div>
+            <div class="field">
+              <label>Date de naissance</label>
+              <input type="date" id="reg-dob" class="reg-info-input" />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+              <div class="field">
+                <label>Poids (kg)</label>
+                <input type="number" id="reg-weight" class="reg-info-input" min="30" max="300" step=".1" placeholder="70" />
+              </div>
+              <div class="field">
+                <label>Taille (cm)</label>
+                <input type="number" id="reg-height" class="reg-info-input" min="100" max="250" placeholder="175" />
+              </div>
+            </div>
             <button class="btn-primary" onclick="handleRegister()">
               Créer mon compte
             </button>
@@ -254,6 +280,54 @@
         </button>
       </div>
 
+      <!-- PROGRESSION -->
+      <div class="page" id="page-progression">
+        <div class="section-title">Progression</div>
+
+        <div id="progression-minor-banner" class="minor-banner" style="display:none">
+          &#128207; Tu es mineur(e) — le suivi de ta taille est activé
+        </div>
+
+        <div class="card">
+          <div class="card-title">Mesure du mois</div>
+          <div style="display:flex;gap:.75rem;margin-bottom:.75rem">
+            <div style="flex:1">
+              <div style="font-size:.75rem;color:var(--muted);margin-bottom:.375rem;font-weight:500">Poids</div>
+              <div style="display:flex;align-items:center;gap:.375rem">
+                <input type="number" class="metric-input" id="prog-weight" min="30" max="300" step=".1" placeholder="—" style="flex:1" />
+                <span style="font-size:.8125rem;color:var(--muted);flex-shrink:0">kg</span>
+              </div>
+            </div>
+            <div id="prog-height-field" style="flex:1;display:none">
+              <div style="font-size:.75rem;color:var(--muted);margin-bottom:.375rem;font-weight:500">Taille</div>
+              <div style="display:flex;align-items:center;gap:.375rem">
+                <input type="number" class="metric-input" id="prog-height" min="100" max="250" placeholder="—" style="flex:1" />
+                <span style="font-size:.8125rem;color:var(--muted);flex-shrink:0">cm</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn-primary" style="margin-top:0" onclick="saveProgressionEntry()">Enregistrer</button>
+          <div id="prog-week-info" style="font-size:.75rem;color:var(--muted);margin-top:.625rem"></div>
+        </div>
+
+        <div class="card" id="prog-weight-chart-card">
+          <div class="card-title">&#201;volution du poids</div>
+          <div id="prog-weight-chart"></div>
+          <div id="prog-weight-stats" class="prog-stats-row"></div>
+        </div>
+
+        <div class="card" id="prog-height-chart-card" style="display:none">
+          <div class="card-title">&#201;volution de la taille</div>
+          <div id="prog-height-chart"></div>
+          <div id="prog-height-stats" class="prog-stats-row"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Historique des mesures</div>
+          <div id="prog-history-list"></div>
+        </div>
+      </div>
+
       <!-- HISTORIQUE -->
       <div class="page" id="page-historique">
         <div class="section-title">Historique</div>
@@ -304,6 +378,17 @@
             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
           </svg>
           <span class="nav-label">Séances</span>
+        </button>
+        <button
+          class="nav-item"
+          id="nav-progression"
+          onclick="navigate('progression')"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <polyline points="2 18 8 12 13 16 22 6" />
+            <line x1="2" y1="18" x2="22" y2="18" />
+          </svg>
+          <span class="nav-label">Progression</span>
         </button>
         <button
           class="nav-item"
@@ -554,21 +639,22 @@
           </div>
         </div>
         <div class="field">
+          <label>Date de naissance</label>
+          <input
+            type="date"
+            id="profile-dob"
+            class="metric-input"
+            style="width:100%;text-align:left;font-size:.9rem"
+            onchange="onDobChange()"
+          />
+          <div
+            id="profile-age-display"
+            style="display:none;margin-top:6px;font-size:.875rem;color:var(--accent);font-weight:600;text-align:center"
+          ></div>
+        </div>
+        <div class="field">
           <label>Informations physiques</label>
           <div class="metrics-grid">
-            <div class="metric-field">
-              <label>Âge</label
-              ><input
-                type="number"
-                class="metric-input"
-                id="profile-age"
-                min="10"
-                max="99"
-                placeholder="—"
-                oninput="updateImc()"
-              />
-              <div class="metric-unit">ans</div>
-            </div>
             <div class="metric-field">
               <label>Poids</label
               ><input
@@ -607,6 +693,7 @@
     </div>
 
     <div class="toast" id="toast"></div>
+    <div id="chart-tooltip" style="position:fixed;background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:.8125rem;font-weight:600;color:var(--text);pointer-events:none;z-index:500;display:none;white-space:nowrap;transform:translateX(-50%)"></div>
 
     <script src="data.js"></script>
     <script src="app.js"></script>

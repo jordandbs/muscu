@@ -896,6 +896,83 @@ body {
   justify-content: center;
 }
 
+/* REGISTER FORM */
+.reg-divider {
+  font-size: 0.6875rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-top: 1px solid var(--border);
+  padding-top: 0.875rem;
+  margin: 1rem 0 0.875rem;
+}
+.reg-info-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.875rem;
+  color: var(--text);
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.9375rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.reg-info-input:focus {
+  border-color: var(--accent);
+}
+
+/* PROGRESSION */
+.minor-banner {
+  background: linear-gradient(135deg, #3b82f618, #60a5fa10);
+  border: 1px solid #3b82f640;
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #60a5fa;
+  font-weight: 500;
+  margin-bottom: 0.875rem;
+}
+.prog-stats-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+  flex-wrap: wrap;
+}
+.prog-stat-chip {
+  flex: 1;
+  min-width: 80px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+}
+.prog-stat-chip span {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+.prog-stat-chip strong {
+  font-size: 0.9375rem;
+  font-family: "Bebas Neue", sans-serif;
+  letter-spacing: 0.04em;
+}
+.prog-history-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.prog-history-row:last-child {
+  border-bottom: none;
+}
+
 .toast {
   position: fixed;
   bottom: 80px;

@@ -5,7 +5,8 @@ let editingTemplateIdx = null,
   draftTemplate = { name: "", exercises: [] };
 let activeSession = null,
   timerInterval = null,
-  selectedGender = "";
+  selectedGender = "",
+  regSelectedGender = "";
 
 function saveUsers() {
   localStorage.setItem("ironlog_users", JSON.stringify(allUsers));
@@ -26,9 +27,11 @@ function getUserData(u) {
       sessions: [],
       templates: [],
       profile: {},
+      progressionEntries: [],
     };
   if (!allUsers[u].templates) allUsers[u].templates = [];
   if (!allUsers[u].profile) allUsers[u].profile = {};
+  if (!allUsers[u].progressionEntries) allUsers[u].progressionEntries = [];
   return allUsers[u];
 }
 function getExos() {
@@ -68,6 +71,12 @@ function handleLogin() {
   currentUser = u;
   startApp();
 }
+function selectRegGender(g) {
+  regSelectedGender = g;
+  document.getElementById("reg-gender-homme").classList.toggle("active", g === "homme");
+  document.getElementById("reg-gender-femme").classList.toggle("active", g === "femme");
+}
+
 function handleRegister() {
   const name = document.getElementById("reg-name").value.trim();
   const u = document.getElementById("reg-username").value.trim();
@@ -78,11 +87,30 @@ function handleRegister() {
     return;
   }
   if (p.length < 6) {
-    err.textContent = "Mot de passe trop court.";
+    err.textContent = "Mot de passe trop court (6 caractères min).";
     return;
   }
   if (allUsers[u]) {
-    err.textContent = "Nom d'utilisateur pris.";
+    err.textContent = "Nom d'utilisateur déjà pris.";
+    return;
+  }
+  if (!regSelectedGender) {
+    err.textContent = "Sélectionne ton genre.";
+    return;
+  }
+  const dob = (document.getElementById("reg-dob") || {}).value || "";
+  if (!dob) {
+    err.textContent = "Entre ta date de naissance.";
+    return;
+  }
+  const weight = (document.getElementById("reg-weight") || {}).value || "";
+  if (!weight || parseFloat(weight) < 20) {
+    err.textContent = "Entre ton poids.";
+    return;
+  }
+  const height = (document.getElementById("reg-height") || {}).value || "";
+  if (!height || parseFloat(height) < 50) {
+    err.textContent = "Entre ta taille.";
     return;
   }
   allUsers[u] = {
@@ -91,10 +119,17 @@ function handleRegister() {
     exercises: [...DEFAULT_EXOS],
     sessions: [],
     templates: [],
-    profile: {},
+    progressionEntries: [],
+    profile: {
+      gender: regSelectedGender,
+      dob,
+      weight,
+      height,
+    },
   };
   saveUsers();
   currentUser = u;
+  regSelectedGender = "";
   startApp();
 }
 function logout() {
@@ -116,13 +151,13 @@ function startApp() {
 }
 
 function navigate(page) {
-  ["dashboard", "exercices", "seances", "live", "historique"].forEach(
+  ["dashboard", "exercices", "seances", "live", "progression", "historique"].forEach(
     (p) => {
       const el = document.getElementById("page-" + p);
       if (el) el.classList.remove("active");
     },
   );
-  ["dashboard", "exercices", "seances", "historique"].forEach((n) => {
+  ["dashboard", "exercices", "seances", "progression", "historique"].forEach((n) => {
     const el = document.getElementById("nav-" + n);
     if (el) el.classList.remove("active");
   });
@@ -136,6 +171,7 @@ function navigate(page) {
   if (page === "exercices") renderCurrentMuscleTab();
   if (page === "seances") renderTemplates();
   if (page === "live") renderLiveSession();
+  if (page === "progression") renderProgression();
   if (page === "historique") renderHistory();
 }
 
@@ -837,6 +873,29 @@ function deleteSession(idx) {
 }
 
 // PROFILE
+function calculateAge(dob) {
+  if (!dob) return null;
+  const today = new Date();
+  const birth = new Date(dob);
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return age >= 0 ? age : null;
+}
+
+function onDobChange() {
+  const dob = document.getElementById("profile-dob").value;
+  const display = document.getElementById("profile-age-display");
+  const age = calculateAge(dob);
+  if (age !== null) {
+    display.style.display = "block";
+    display.textContent = age + " ans";
+  } else {
+    display.style.display = "none";
+  }
+  updateImc();
+}
+
 function openProfile() {
   const data = getUserData(currentUser),
     p = data.profile || {};
@@ -844,7 +903,7 @@ function openProfile() {
   document.getElementById("profile-initials").textContent = data.name
     .charAt(0)
     .toUpperCase();
-  document.getElementById("profile-age").value = p.age || "";
+  document.getElementById("profile-dob").value = p.dob || "";
   document.getElementById("profile-weight").value = p.weight || "";
   document.getElementById("profile-height").value = p.height || "";
   selectedGender = p.gender || "";
@@ -867,7 +926,7 @@ function openProfile() {
     ini.style.display = "block";
     btnR.style.display = "none";
   }
-  updateImc();
+  onDobChange();
   openModal("modal-profile");
 }
 function selectGender(g) {
@@ -901,6 +960,16 @@ function removeProfilePic() {
   document.getElementById("profile-pic-input").value = "";
 }
 function updateImc() {
+  // refresh age display
+  const dobEl = document.getElementById("profile-dob");
+  if (dobEl && dobEl.value) {
+    const display = document.getElementById("profile-age-display");
+    const age = calculateAge(dobEl.value);
+    if (age !== null && display) {
+      display.style.display = "block";
+      display.textContent = age + " ans";
+    }
+  }
   const w = parseFloat(document.getElementById("profile-weight").value),
     h = parseFloat(document.getElementById("profile-height").value);
   const badge = document.getElementById("imc-badge");
@@ -930,7 +999,7 @@ function saveProfile() {
       : null;
   data.profile = {
     gender: selectedGender,
-    age: document.getElementById("profile-age").value,
+    dob: document.getElementById("profile-dob").value,
     weight: document.getElementById("profile-weight").value,
     height: document.getElementById("profile-height").value,
     photo: photo || null,
@@ -949,6 +1018,267 @@ function updateTopbarAvatar() {
     av.innerHTML = data.name.charAt(0).toUpperCase();
     av.style.background = "var(--accent)";
   }
+}
+
+// PROGRESSION
+function getMonthKey(date) {
+  const d = new Date(date || Date.now());
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  return `${y}-${m}`; // ex: "2025-04"
+}
+
+function fmtMonthKey(key) {
+  // "2025-04" → "Avril 2025"
+  const [y, m] = key.split("-");
+  return new Date(parseInt(y), parseInt(m) - 1, 1)
+    .toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+}
+
+function getUserAge() {
+  const p = getUserData(currentUser).profile || {};
+  if (p.dob) return calculateAge(p.dob);
+  return null;
+}
+
+function renderProgression() {
+  const data = getUserData(currentUser);
+  const entries = data.progressionEntries || [];
+  const age = getUserAge();
+  const isMinor = age !== null && age < 18;
+
+  // Minor UI
+  document.getElementById("progression-minor-banner").style.display = isMinor ? "block" : "none";
+  document.getElementById("prog-height-field").style.display = isMinor ? "" : "none";
+  document.getElementById("prog-height-chart-card").style.display = isMinor ? "" : "none";
+
+  // Month info & prefill
+  const monthKey = getMonthKey();
+  const existing = entries.find((e) => e.month === monthKey);
+  const weekInfoEl = document.getElementById("prog-week-info");
+  if (existing) {
+    weekInfoEl.innerHTML = `<span style="color:var(--accent)">✓ Déjà enregistré pour ${fmtMonthKey(monthKey)}</span> — tu peux modifier et ré-enregistrer`;
+    document.getElementById("prog-weight").value = existing.weight || "";
+    if (isMinor) document.getElementById("prog-height").value = existing.height || "";
+  } else {
+    weekInfoEl.textContent = fmtMonthKey(monthKey);
+    document.getElementById("prog-weight").value = "";
+    if (isMinor) document.getElementById("prog-height").value = "";
+  }
+
+  // Sort for charts
+  const sorted = [...entries].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  // Weight chart
+  const wEntries = sorted.filter((e) => e.weight);
+  const wChartEl = document.getElementById("prog-weight-chart");
+  if (wEntries.length >= 2) {
+    wChartEl.innerHTML = buildChart(wEntries, "weight", "#f97316");
+  } else {
+    wChartEl.innerHTML =
+      '<div style="color:var(--muted);font-size:.875rem;text-align:center;padding:1.5rem 0">Au moins 2 mesures pour afficher la courbe</div>';
+  }
+  // Weight stats
+  const wStatsEl = document.getElementById("prog-weight-stats");
+  if (wEntries.length >= 1) {
+    const vals = wEntries.map((e) => parseFloat(e.weight));
+    const minV = Math.min(...vals),
+      maxV = Math.max(...vals);
+    const diff = vals[vals.length - 1] - vals[0];
+    const diffStr = (diff >= 0 ? "+" : "") + diff.toFixed(1) + " kg";
+    const diffColor = diff >= 0 ? "var(--success)" : "var(--danger)";
+    wStatsEl.innerHTML = `
+      <div class="prog-stat-chip"><span>Min</span><strong>${minV.toFixed(1)} kg</strong></div>
+      <div class="prog-stat-chip"><span>Max</span><strong>${maxV.toFixed(1)} kg</strong></div>
+      <div class="prog-stat-chip"><span>Évolution</span><strong style="color:${diffColor}">${diffStr}</strong></div>`;
+  } else {
+    wStatsEl.innerHTML = "";
+  }
+
+  // Height chart (minors)
+  if (isMinor) {
+    const hEntries = sorted.filter((e) => e.height);
+    const hChartEl = document.getElementById("prog-height-chart");
+    if (hEntries.length >= 2) {
+      hChartEl.innerHTML = buildChart(hEntries, "height", "#60a5fa");
+    } else {
+      hChartEl.innerHTML =
+        '<div style="color:var(--muted);font-size:.875rem;text-align:center;padding:1.5rem 0">Au moins 2 mesures pour afficher la courbe</div>';
+    }
+    const hStatsEl = document.getElementById("prog-height-stats");
+    if (hEntries.length >= 1) {
+      const vals = hEntries.map((e) => parseFloat(e.height));
+      const minV = Math.min(...vals),
+        maxV = Math.max(...vals);
+      const diff = vals[vals.length - 1] - vals[0];
+      const diffStr = (diff >= 0 ? "+" : "") + diff.toFixed(1) + " cm";
+      hStatsEl.innerHTML = `
+        <div class="prog-stat-chip"><span>Min</span><strong>${minV.toFixed(1)} cm</strong></div>
+        <div class="prog-stat-chip"><span>Max</span><strong>${maxV.toFixed(1)} cm</strong></div>
+        <div class="prog-stat-chip"><span>Évolution</span><strong style="color:var(--success)">${diffStr}</strong></div>`;
+    } else {
+      hStatsEl.innerHTML = "";
+    }
+  }
+
+  // History (last 20, most recent first)
+  const histEl = document.getElementById("prog-history-list");
+  const last20 = [...sorted].reverse().slice(0, 20);
+  if (!last20.length) {
+    histEl.innerHTML =
+      '<div style="color:var(--muted);font-size:.875rem;text-align:center;padding:1rem 0">Aucune mesure enregistrée</div>';
+  } else {
+    histEl.innerHTML = last20
+      .map((e) => {
+        const dateStr = fmtMonthKey(e.month);
+        const details = [
+          e.weight ? "⚖ " + e.weight + " kg" : null,
+          isMinor && e.height ? "📏 " + e.height + " cm" : null,
+        ]
+          .filter(Boolean)
+          .join("  ·  ");
+        return `<div class="prog-history-row">
+  <div>
+    <div style="font-size:.8125rem;color:var(--text)">${dateStr}</div>
+    <div style="font-size:.75rem;color:var(--muted);margin-top:2px">${details}</div>
+  </div>
+  <button class="btn-icon" onclick="deleteProgressionEntry('${e.month}')">🗑</button>
+</div>`;
+      })
+      .join("");
+  }
+}
+
+function saveProgressionEntry() {
+  const weightVal = parseFloat(document.getElementById("prog-weight").value);
+  if (!weightVal || weightVal < 20 || weightVal > 400) {
+    showToast("Entre un poids valide !");
+    return;
+  }
+  const age = getUserAge();
+  const isMinor = age !== null && age < 18;
+  let heightVal = null;
+  if (isMinor) {
+    heightVal = parseFloat(document.getElementById("prog-height").value) || null;
+  }
+  const data = getUserData(currentUser);
+  const monthKey = getMonthKey();
+  const existingIdx = data.progressionEntries.findIndex((e) => e.month === monthKey);
+  const entry = {
+    month: monthKey,
+    date: new Date().toISOString(),
+    weight: weightVal,
+    height: heightVal,
+  };
+  if (existingIdx >= 0) {
+    data.progressionEntries[existingIdx] = entry;
+    showToast("Mesure mise à jour !");
+  } else {
+    data.progressionEntries.push(entry);
+    showToast("Mesure enregistrée !");
+  }
+  saveUsers();
+  renderProgression();
+}
+
+function deleteProgressionEntry(monthKey) {
+  const data = getUserData(currentUser);
+  const idx = data.progressionEntries.findIndex((x) => x.month === monthKey);
+  if (idx === -1) return;
+  data.progressionEntries.splice(idx, 1);
+  saveUsers();
+  renderProgression();
+  showToast("Mesure supprimée");
+}
+
+function buildChart(entries, field, color) {
+  const values = entries.map((e) => parseFloat(e[field]));
+  const minV = Math.min(...values);
+  const maxV = Math.max(...values);
+  const range = maxV - minV || 0.5;
+
+  const W = 320,
+    H = 140;
+  const PAD = { top: 18, right: 16, bottom: 28, left: 44 };
+  const cW = W - PAD.left - PAD.right;
+  const cH = H - PAD.top - PAD.bottom;
+
+  const xS = (i) =>
+    PAD.left + (entries.length <= 1 ? cW / 2 : (i / (entries.length - 1)) * cW);
+  const yS = (v) => PAD.top + cH - ((v - minV) / range) * cH;
+
+  const pts = values.map((v, i) => [xS(i), yS(v)]);
+
+  // Smooth cubic bezier line
+  let line = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+  for (let i = 1; i < pts.length; i++) {
+    const [x0, y0] = pts[i - 1];
+    const [x1, y1] = pts[i];
+    const cpx = ((x0 + x1) / 2).toFixed(1);
+    line += ` C ${cpx} ${y0.toFixed(1)} ${cpx} ${y1.toFixed(1)} ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+  }
+  const area =
+    line +
+    ` L ${pts[pts.length - 1][0].toFixed(1)} ${(PAD.top + cH).toFixed(1)} L ${PAD.left} ${(PAD.top + cH).toFixed(1)} Z`;
+
+  // Grid
+  let grid = "";
+  for (let i = 0; i <= 4; i++) {
+    const y = PAD.top + (i / 4) * cH;
+    const v = maxV - (i / 4) * range;
+    grid += `<line x1="${PAD.left}" y1="${y.toFixed(1)}" x2="${W - PAD.right}" y2="${y.toFixed(1)}" stroke="#2d2d33" stroke-width="0.6"/>
+<text x="${(PAD.left - 4).toFixed(1)}" y="${(y + 3.5).toFixed(1)}" font-size="8" fill="#71717a" text-anchor="end" font-family="DM Sans,sans-serif">${v.toFixed(1)}</text>`;
+  }
+
+  // X labels (up to 5)
+  let xLabels = "";
+  const step = Math.max(1, Math.ceil((entries.length - 1) / 4));
+  entries.forEach((e, i) => {
+    if (i % step === 0 || i === entries.length - 1) {
+      const d = new Date(e.date);
+      const lbl = d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+      xLabels += `<text x="${pts[i][0].toFixed(1)}" y="${(H - 4).toFixed(1)}" font-size="7.5" fill="#71717a" text-anchor="middle" font-family="DM Sans,sans-serif">${lbl}</text>`;
+    }
+  });
+
+  // Points
+  const unit = field === "weight" ? " kg" : " cm";
+  const pointsHTML = pts
+    .map(
+      ([x, y], i) =>
+        `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="${color}" stroke="#161618" stroke-width="1.5" style="cursor:pointer"
+        onmouseenter="showChartTip(event,'${values[i]}${unit}')" onmouseleave="hideChartTip()"
+        ontouchstart="showChartTip(event,'${values[i]}${unit}')"/>`,
+    )
+    .join("");
+
+  const gid = "cg" + field + Date.now();
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;overflow:visible">
+  <defs>
+    <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.38"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0.02"/>
+    </linearGradient>
+  </defs>
+  ${grid}
+  <path d="${area}" fill="url(#${gid})"/>
+  <path d="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  ${pointsHTML}
+  ${xLabels}
+</svg>`;
+}
+
+function showChartTip(e, text) {
+  const tip = document.getElementById("chart-tooltip");
+  tip.textContent = text;
+  tip.style.display = "block";
+  const cx = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+  const cy = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+  tip.style.left = cx + "px";
+  tip.style.top = cy - 38 + "px";
+}
+function hideChartTip() {
+  document.getElementById("chart-tooltip").style.display = "none";
 }
 
 // MODALS
