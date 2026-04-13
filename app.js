@@ -269,17 +269,21 @@ function saveNewExo() {
     alert("Remplis le nom et le groupe.");
     return;
   }
+  const videoUrl = (document.getElementById("new-exo-video") || {}).value?.trim() || "";
   getExos().push({
     id: "c" + Date.now(),
     name,
     muscle,
     type: document.getElementById("new-exo-type").value,
     level: document.getElementById("new-exo-level").value,
+    video: videoUrl,
     custom: true,
   });
   saveUsers();
   closeModal("modal-add-exo");
   document.getElementById("new-exo-name").value = "";
+  const videoInput = document.getElementById("new-exo-video");
+  if (videoInput) videoInput.value = "";
   setMuscleTab(muscle);
   navigate("exercices");
   showToast("Exercice ajouté !");
@@ -309,7 +313,24 @@ function openExoDetail(id) {
       };
     })
     .filter(Boolean);
+  // Build YouTube embed if video URL present
+  let videoHtml = "";
+  if (exo.video) {
+    const ytMatch = exo.video.match(/(?:v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{11})/);
+    if (ytMatch) {
+      const vid = ytMatch[1];
+      videoHtml = `<div style="position:relative;padding-bottom:56.25%;height:0;border-radius:10px;overflow:hidden;margin-bottom:1rem">
+  <iframe src="https://www.youtube.com/embed/${vid}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allowfullscreen loading="lazy"></iframe>
+</div>`;
+    } else {
+      videoHtml = `<a href="${exo.video}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:.5rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.625rem .875rem;font-size:.875rem;color:var(--accent);text-decoration:none;margin-bottom:1rem">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+  Voir la vidéo
+</a>`;
+    }
+  }
   document.getElementById("detail-body").innerHTML = `
+    ${videoHtml}
     <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
 <span class="tag tag-type">${exo.type}</span>
 <span class="tag tag-level-${exo.level}">${{ easy: "Débutant", medium: "Intermédiaire", hard: "Avancé" }[exo.level]}</span>
