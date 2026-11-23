@@ -1323,6 +1323,44 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove("show"), 2200);
 }
 
+// EXPORT JSON (migration vers la nouvelle version)
+// Format compatible avec migration/merge.mjs : { users: { <username>: {...} } }
+async function exportMyData() {
+  if (!currentUser) return;
+  const payload = JSON.stringify(
+    {
+      source: "ironlog_users",
+      origin: location.origin,
+      exportedAt: new Date().toISOString(),
+      users: { [currentUser]: getUserData(currentUser) },
+    },
+    null,
+    2,
+  );
+  const fileName = `ironlog-${currentUser}-${new Date().toISOString().slice(0, 10)}.json`;
+  const file = new File([payload], fileName, { type: "application/json" });
+
+  // Mobile : feuille de partage native (mail, WhatsApp, Fichiers…)
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: fileName });
+      return;
+    } catch (e) {
+      if (e.name === "AbortError") return;
+    }
+  }
+
+  // Ordinateur : téléchargement classique
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(file);
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  showToast("Export téléchargé !");
+}
+
 // KEYBOARD
 document.addEventListener("keydown", (e) => {
   if (
